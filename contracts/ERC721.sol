@@ -77,8 +77,13 @@ contract ERC165 is IERC165 {
      */
     function _registerInterface(bytes4 interfaceId) internal virtual {
         require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
+        emit RegisterInterface(interfaceId);
         _supportedInterfaces[interfaceId] = true;
     }
+
+    event RegisterInterface(bytes4 indexed interfaceId);
+    event SetTokenURI(uint256 indexed tokenId, string tokenURI);
+    event SetBaseURI(string indexed baseURI);
 }
 
 
@@ -208,6 +213,7 @@ interface IERC721 is IERC165 {
 
 interface ImBtcNFT is IERC721 {
     function mint(address player) external returns (uint256);
+
     function burn(uint256 tokenId) external;
 }
 
@@ -294,16 +300,16 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     bytes4 private constant _ERC721_RECEIVED = 0x150b7a02;
 
     // Mapping from holder address to their (enumerable) set of owned tokens
-    mapping (address => EnumerableSet.UintSet) private _holderTokens;
+    mapping(address => EnumerableSet.UintSet) private _holderTokens;
 
     // Enumerable mapping from token ids to their owners
     EnumerableMap.UintToAddressMap private _tokenOwners;
 
     // Mapping from token ID to approved address
-    mapping (uint256 => address) private _tokenApprovals;
+    mapping(uint256 => address) private _tokenApprovals;
 
     // Mapping from owner to operator approvals
-    mapping (address => mapping (address => bool)) private _operatorApprovals;
+    mapping(address => mapping(address => bool)) private _operatorApprovals;
 
     // Token name
     string private _name;
@@ -312,7 +318,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     string private _symbol;
 
     // Optional mapping for token URIs
-    mapping (uint256 => string) private _tokenURIs;
+    mapping(uint256 => string) private _tokenURIs;
 
     // Base URI
     string private _baseURI;
@@ -442,7 +448,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * @dev See {IERC721Enumerable-tokenByIndex}.
      */
     function tokenByIndex(uint256 index) public view override returns (uint256) {
-        (uint256 tokenId, ) = _tokenOwners.at(index);
+        (uint256 tokenId,) = _tokenOwners.at(index);
         return tokenId;
     }
 
@@ -597,8 +603,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     function _mint(address to, uint256 tokenId) internal virtual {
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(tokenId), "ERC721: token already minted");
-//        console.log("to: %s", to);
-//        console.log("tokenId: %s", tokenId);
+        //        console.log("to: %s", to);
+        //        console.log("tokenId: %s", tokenId);
 
         _beforeTokenTransfer(address(0), to, tokenId);
 
@@ -676,6 +682,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      */
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
+        emit SetTokenURI(tokenId, _tokenURI);
         _tokenURIs[tokenId] = _tokenURI;
     }
 
@@ -685,6 +692,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      * or to the token ID if {tokenURI} is empty.
      */
     function _setBaseURI(string memory baseURI_) internal virtual {
+        emit SetBaseURI(baseURI_);
         _baseURI = baseURI_;
     }
 
@@ -735,7 +743,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual { }
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual {}
 }
 
 

@@ -2,15 +2,13 @@
 
 import './interfaces/IBEP20.sol';
 import './libs/safe-math.sol';
-import './libs/ownable.sol';
 
 pragma solidity ^0.6.6;
 
-contract MBTCToken is IBEP20, Ownable {
+contract MBTCToken is IBEP20 {
     using SafeMath for uint256;
 
     mapping(address => uint256) private _balances;
-
     mapping(address => mapping(address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
@@ -26,10 +24,6 @@ contract MBTCToken is IBEP20, Ownable {
         _balances[msg.sender] = _totalSupply;
 
         emit Transfer(address(0), msg.sender, _totalSupply);
-    }
-
-    function getOwner() override external view returns (address) {
-        return owner();
     }
 
     function decimals() override external view returns (uint8) {
@@ -52,14 +46,14 @@ contract MBTCToken is IBEP20, Ownable {
         return _balances[account];
     }
 
-    function transfer(address recipient, uint256 amount) override public returns (bool) {
-        _transfer(_msgSender(), recipient, amount);
+    function transfer(address recipient, uint256 amount) override external returns (bool) {
+        _transfer(msg.sender, recipient, amount);
         return true;
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) override public returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) override external returns (bool) {
         _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "BEP20: transfer amount exceeds allowance"));
+        _approve(sender, msg.sender, _allowances[sender][msg.sender].sub(amount, "Transfer amount exceeds allowance"));
         return true;
     }
 
@@ -67,18 +61,18 @@ contract MBTCToken is IBEP20, Ownable {
         return _allowances[owner][spender];
     }
 
-    function approve(address spender, uint256 amount) override public returns (bool) {
-        _approve(_msgSender(), spender, amount);
+    function approve(address spender, uint256 amount) override external returns (bool) {
+        _approve(msg.sender, spender, amount);
         return true;
     }
 
-    function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
+    function increaseAllowance(address spender, uint256 addedValue) external returns (bool) {
+        _approve(msg.sender, spender, _allowances[msg.sender][spender].add(addedValue));
         return true;
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue, "BEP20: decreased allowance below zero"));
+    function decreaseAllowance(address spender, uint256 subtractedValue) external returns (bool) {
+        _approve(msg.sender, spender, _allowances[msg.sender][spender].sub(subtractedValue, "Decreased allowance below zero"));
         return true;
     }
 
@@ -92,10 +86,11 @@ contract MBTCToken is IBEP20, Ownable {
     }
 
     function _approve(address owner, address spender, uint256 amount) internal {
-        require(owner != address(0), "BEP20: approve from the zero address");
-        require(spender != address(0), "BEP20: approve to the zero address");
+        require(owner != address(0), "Approve from the zero address");
+        require(spender != address(0), "Approve to the zero address");
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
     }
+
 }

@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
-
 import './libs/Counters.sol';
 import './libs/ownable.sol';
 import './ERC721.sol';
-import "hardhat/console.sol";
 
 pragma solidity ^0.6.6;
 
@@ -15,7 +13,7 @@ contract NFTMiner is ERC721Pausable, Ownable {
     mapping(address => bool) private _minters;
 
     constructor() public ERC721("NFTMiner", "MINER") {
-        setBaseURI("https://miner.meta-btc.org/nft/");
+        setBaseURI("https://api.meta-btc.org/nft/");
     }
 
     modifier onlyMinter() {
@@ -24,17 +22,14 @@ contract NFTMiner is ERC721Pausable, Ownable {
     }
 
     function setBaseURI(string memory baseURI) public onlyOwner virtual {
+        emit SetBaseURI(baseURI);
         _setBaseURI(baseURI);
     }
 
     function mint(address player) public onlyMinter returns (uint256) {
-
         _tokenIds.increment();
         uint256 id = _tokenIds.current();
-        //        console.log("id: %s", id);
-
         _mint(player, id);
-
         return id;
     }
 
@@ -74,15 +69,21 @@ contract NFTMiner is ERC721Pausable, Ownable {
     }
 
     function addMinter(address minter) public onlyOwner {
+        emit AddMinter(minter);
         _minters[minter] = true;
     }
 
     function removeMinter(address minter) public onlyOwner {
+        emit RemoveMinter(minter);
         _minters[minter] = false;
     }
 
     function isMinter(address minter) public view returns (bool) {
         return _minters[minter];
     }
+
+    event SetBaseURI(string indexed baseURI);
+    event AddMinter(address indexed account);
+    event RemoveMinter(address indexed account);
 
 }

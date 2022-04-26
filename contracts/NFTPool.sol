@@ -2,7 +2,6 @@
 import './libs/Counters.sol';
 import './libs/ownable.sol';
 import './ERC721.sol';
-import "hardhat/console.sol";
 
 pragma solidity ^0.6.6;
 
@@ -14,7 +13,7 @@ contract NFTPool is ERC721Pausable, Ownable {
     mapping(address => bool) private _minters;
 
     constructor() public ERC721("NFTPool", "POOL") {
-        setBaseURI("https://pool.meta-btc.org/nft/");
+        setBaseURI("https://api.mbtc.com/nft/");
     }
 
     modifier onlyMinter() {
@@ -73,15 +72,20 @@ contract NFTPool is ERC721Pausable, Ownable {
     }
 
     function addMinter(address minter) public onlyOwner {
+        emit AddMinter(minter);
         _minters[minter] = true;
     }
 
     function removeMinter(address minter) public onlyOwner {
+        emit RemoveMinter(minter);
         _minters[minter] = false;
     }
 
-    function isMinter(address minter) public view returns (bool) {
+    function isMinter(address minter) public view returns(bool) {
         return _minters[minter];
     }
+
+    event AddMinter(address indexed account);
+    event RemoveMinter(address indexed account);
 
 }
